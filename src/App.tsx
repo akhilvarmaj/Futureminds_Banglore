@@ -17,8 +17,9 @@ import { ParentReviews } from './components/ParentReviews';
 import { CampusLocationMap } from './components/CampusLocationMap';
 import { ShareModal } from './components/ShareModal';
 import { GitHubSync } from './components/GitHubSync';
+import { SeoDashboard } from './components/SeoDashboard';
 
-type PageTab = 'home' | 'about' | 'programs' | 'grades' | 'projects' | 'gallery' | 'demo' | 'contact' | 'faq';
+type PageTab = 'home' | 'about' | 'programs' | 'grades' | 'projects' | 'gallery' | 'demo' | 'contact' | 'faq' | 'dashboard';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<PageTab>('home');
@@ -149,7 +150,8 @@ export default function App() {
       gallery: 'Campus & Robotics Lab Gallery | Ananth Nagar Phase 2 — Future Minds',
       demo: 'Book a Free Demo Class | Hands-on Robotics & Coding — Future Minds Bangalore',
       contact: 'Contact & Campus Location | 1121 5th Cross Ananth Nagar Electronic City',
-      faq: 'FAQ | Admissions, Batch Timings & Kits — Future Minds Bangalore'
+      faq: 'FAQ | Admissions, Batch Timings & Kits — Future Minds Bangalore',
+      dashboard: 'SEO Performance Dashboard | Future Minds Bangalore'
     };
     if (titles[activeTab]) {
       document.title = titles[activeTab];
@@ -182,7 +184,9 @@ export default function App() {
         address: 'contact',
         batches: 'programs',
         faq: 'faq',
-        faqs: 'faq'
+        faqs: 'faq',
+        dashboard: 'dashboard',
+        seo: 'dashboard'
       };
       if (aliasMap[raw]) {
         setActiveTab(aliasMap[raw]);
@@ -374,6 +378,7 @@ export default function App() {
               { id: 'gallery', label: 'Campus & Lab' },
               { id: 'contact', label: 'Contact' },
               { id: 'faq', label: 'FAQ' },
+              { id: 'dashboard', label: 'SEO' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -474,6 +479,7 @@ export default function App() {
               { id: 'gallery', label: 'Campus & Lab Gallery' },
               { id: 'contact', label: 'Contact & Location (Ananth Nagar)' },
               { id: 'faq', label: 'FAQ' },
+              { id: 'dashboard', label: '📈 SEO Performance Dashboard' },
               { id: 'demo', label: '✨ Book Free Demo Class' },
             ].map((item) => (
               <button
@@ -1569,6 +1575,15 @@ export default function App() {
                 </button>
               </div>
             </section>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* PAGE 10: SEO DASHBOARD TAB                               */}
+        {/* ======================================================== */}
+        {activeTab === 'dashboard' && (
+          <div className="max-w-[1080px] mx-auto px-5 pt-10 pb-20">
+            <SeoDashboard />
           </div>
         )}
       </main>
