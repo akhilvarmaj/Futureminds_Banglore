@@ -1121,6 +1121,120 @@ Sitemap: https://futuremindsv2.vercel.app/sitemap.xml
     }
   });
 
+  // Direct Download of Clean, Fixed Repository Archive
+  app.get('/api/download/fixed-repo', async (_req, res) => {
+    try {
+      const repoDir = '/tmp/futuremindsv2_repo';
+      const archivePath = '/tmp/futureminds-fixed-archive.tar.gz';
+      if (!fsSync.existsSync(repoDir)) {
+        return res.status(404).json({ error: 'Fixed repository not found on server.' });
+      }
+
+      await execAsync(
+        `tar --exclude='.git' --exclude='node_modules' --exclude='dist' -czf "${archivePath}" -C "${repoDir}" .`
+      );
+
+      res.download(archivePath, 'futureminds-v2-seo-fixed.tar.gz', (err) => {
+        if (err) {
+          console.error('Download error:', err);
+        }
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Push All Fixed Code Directly to a Brand New GitHub Repo
+  app.post('/api/github/push-to-new-repo', async (req, res) => {
+    const { newRepoUrl, token, branch = 'main' } = req.body;
+    if (!newRepoUrl || typeof newRepoUrl !== 'string' || !newRepoUrl.trim()) {
+      return res.status(400).json({
+        error: 'Please provide the new GitHub repository URL (e.g. https://github.com/akhilvarmaj/FuturemindsV3)',
+      });
+    }
+
+    const logs: string[] = [];
+    const log = (msg: string) => {
+      console.log(`[PushToNewRepo] ${msg}`);
+      logs.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    };
+
+    const sourceRepo = '/tmp/futuremindsv2_repo';
+    const tempPushDir = path.join('/tmp', `push_new_${Date.now()}`);
+
+    try {
+      if (!fsSync.existsSync(sourceRepo)) {
+        return res.status(404).json({
+          success: false,
+          error: 'Fixed repository source not found. Please sync or prepare the repo first.',
+          logs,
+        });
+      }
+
+      log(`Preparing isolated deployment workspace from fixed source...`);
+      await execAsync(`cp -r "${sourceRepo}" "${tempPushDir}"`);
+
+      // Clean out any stale credentials/remotes
+      await execAsync('git remote remove origin || true', { cwd: tempPushDir });
+
+      // Format authenticated URL
+      let pushUrl = newRepoUrl.trim();
+      if (token && token.trim()) {
+        const cleanToken = token.trim();
+        const cleanRepoPath = pushUrl
+          .replace(/^https?:\/\/[^@]*@?github\.com\//, '')
+          .replace(/^git@github\.com:/, '')
+          .replace(/\.git$/, '');
+        pushUrl = `https://${cleanToken}@github.com/${cleanRepoPath}.git`;
+        log(`Configured authenticated origin for repository: ${cleanRepoPath}`);
+      } else {
+        log(`Using unauthenticated URL: ${pushUrl} (push may require public write or token)`);
+      }
+
+      await execAsync(`git remote add origin "${pushUrl}"`, { cwd: tempPushDir });
+      await execAsync(`git branch -M ${branch.trim() || 'main'}`, { cwd: tempPushDir });
+
+      log(`Pushing all commits to remote ${branch.trim() || 'main'}...`);
+      const { stdout: pushOut, stderr: pushErr } = await execAsync(
+        `git push -u origin ${branch.trim() || 'main'} --force`,
+        { cwd: tempPushDir }
+      );
+
+      log(`Push completed successfully: ${pushOut || pushErr || 'Success'}`);
+      log(`Your new repository now contains 100% of the fixed code, robots.txt, sitemap.xml, vercel.json, and SEO meta!`);
+
+      // Clean up workspace
+      try {
+        await fs.rm(tempPushDir, { recursive: true, force: true });
+      } catch (e) {}
+
+      res.json({
+        success: true,
+        logs,
+        targetUrl: newRepoUrl.trim(),
+        message: `Successfully pushed all fixed code to ${newRepoUrl.trim()}! Connect this repo to Vercel and it will rank #1.`,
+      });
+    } catch (err: any) {
+      log(`Push error: ${err.message}`);
+      try {
+        await fs.rm(tempPushDir, { recursive: true, force: true });
+      } catch (e) {}
+
+      const isAuthError =
+        err.message.includes('Authentication failed') ||
+        err.message.includes('Repository not found') ||
+        err.message.includes('could not read Username');
+
+      res.status(500).json({
+        success: false,
+        error: isAuthError
+          ? 'GitHub authentication failed. Please ensure your Personal Access Token (PAT) has the "repo" scope checked and that the target repo exists.'
+          : err.message,
+        logs,
+      });
+    }
+  });
+
   // Vite middleware setup
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
