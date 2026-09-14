@@ -1,0 +1,6 @@
+{
+  "name": "Future Minds SEO Optimizer",
+  "description": "Comprehensive SEO optimization suite, keyword ranking blueprint, schema generator, and audit tool for futuremindsv2.vercel.app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
