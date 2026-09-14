@@ -1,86 +1,67 @@
-export type IssueSeverity = 'critical' | 'warning' | 'good';
-export type IssueCategory = 'technical' | 'onpage' | 'schema' | 'local';
+export type AgeGroup = '6-8' | '9-12' | '13-16' | 'all';
 
-export interface AuditIssue {
+export type CourseCategory = 'coding' | 'ai' | 'robotics' | 'combo';
+
+export interface Course {
   id: string;
-  category: IssueCategory;
-  severity: IssueSeverity;
   title: string;
+  subtitle: string;
+  category: CourseCategory;
+  ageGroup: '6-8' | '9-12' | '13-16';
+  duration: string;
+  projectsCount: number;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
   description: string;
-  recommendation: string;
+  keySkills: string[];
+  toolsUsed: string[];
+  featuredProject: string;
+  badge: string;
+  iconName: string;
 }
 
-export interface AuditMetadata {
-  title: string;
-  titleLength: number;
-  description: string;
-  descriptionLength: number;
-  canonical: string;
-  viewport: boolean;
-  og: {
-    title?: string;
-    description?: string;
-    image?: string;
-    type?: string;
-    url?: string;
-  };
-  twitter: {
-    card?: string;
-    title?: string;
-    description?: string;
-    image?: string;
-  };
-  h1: string[];
-  h2: string[];
-  imagesTotal: number;
-  imagesWithoutAlt: number;
-  schemasCount: number;
-  robotsStatus: number;
-  sitemapStatus: number;
-}
-
-export interface AuditResult {
-  url: string;
-  fetchStatus: number;
-  responseTime: number;
-  overallScore: number;
-  categoryScores: {
-    technical: number;
-    onpage: number;
-    schema: number;
-    local: number;
-  };
-  counts: {
-    critical: number;
-    warning: number;
-    good: number;
-  };
-  metadata: AuditMetadata;
-  issues: AuditIssue[];
-}
-
-export interface KeywordItem {
+export interface StudentProgress {
   id: string;
-  keyword: string;
-  category: 'Local Bangalore' | 'Robotics Classes' | 'Coding & Python' | 'Grades 1-10' | 'Near Me Queries';
-  searchIntent: 'Transactional' | 'Commercial' | 'Informational';
-  monthlyVolume: number;
-  difficulty: 'Low' | 'Medium' | 'High';
-  priority: 'Quick Win' | 'High Value' | 'Long-term Authority';
-  targetUrl: string;
-  serpFeatures: string[];
-  suggestedAnchor: string;
+  name: string;
+  age: number;
+  enrolledCourse: string;
+  level: string;
+  joinedDate: string;
+  overallEngagement: number; // 0 - 100%
+  engagementTrend: 'up' | 'stable' | 'needs_attention';
+  weeklyHours: number;
+  streakDays: number;
+  completedLessons: number;
+  totalLessons: number;
+  skillGrowth: {
+    algorithmicThinking: number;
+    roboticsHardware: number;
+    aiFundamentals: number;
+    creativityProblemSolving: number;
+    teamCollaboration: number;
+  };
+  weeklyEngagementHistory: {
+    week: string;
+    score: number;
+    hours: number;
+  }[];
+  recentAchievements: {
+    id: string;
+    title: string;
+    date: string;
+    icon: string;
+    description: string;
+  }[];
+  upcomingMilestone: string;
+  mentorFeedback: string;
 }
 
-export interface ContentPillar {
-  title: string;
-  targetKeyword: string;
-  secondaryKeywords: string[];
-  searchIntent: string;
-  targetAudience: string;
-  estimatedVolume: string;
-  wordCount: string;
-  slug: string;
-  summary: string;
-  keyTakeaways: string[];
+export interface EnrollmentFormData {
+  parentName: string;
+  studentName: string;
+  studentAge: number | string;
+  phone: string;
+  courseInterest: string;
+  preferredMode: 'ananth_nagar_lab' | 'online_interactive';
+  preferredTime: string;
+  notes?: string;
 }

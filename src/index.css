@@ -1,26 +1,354 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    scroll-behavior: smooth;
   }
-  code, pre, kbd, samp {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
-/* Custom smooth scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@keyframes pingScaleIn {
+  0% {
+    transform: scale(0.92);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
-::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+
+.animate-ping-scale-in {
+  animation: pingScaleIn 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.4);
-  border-radius: 4px;
+
+/* =========================================================
+   DARK THEME SYSTEM
+   Tailored for Future Minds STEM & Robotics Academy
+   ========================================================= */
+
+html.dark body {
+  background-color: #0b1320;
+  color: #e2e8f0;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+
+/* Background overrides in dark mode */
+html.dark .bg-\[\#f7faff\],
+html.dark .bg-\[\#f8faff\],
+html.dark .bg-\[\#f8fbff\],
+html.dark .bg-\[\#f9fbfd\] {
+  background-color: #0d1624 !important;
 }
+
+html.dark .bg-white {
+  background-color: #111d2e !important;
+}
+
+html.dark .bg-white\/95,
+html.dark header.bg-white\/95 {
+  background-color: rgba(17, 29, 46, 0.95) !important;
+}
+
+html.dark .bg-\[\#f0f5ff\],
+html.dark .bg-\[\#f0f6ff\],
+html.dark .bg-\[\#f0f7ff\],
+html.dark .bg-\[\#f4f8fe\],
+html.dark .bg-\[\#edf5ff\],
+html.dark .bg-\[\#eef4fc\],
+html.dark .bg-\[\#f0f4fc\],
+html.dark .bg-\[\#e4ecf9\],
+html.dark .bg-\[\#e4efff\] {
+  background-color: #16243a !important;
+}
+
+html.dark .bg-\[\#eaf2ff\] {
+  background-color: #1a2d4a !important;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-gray-50 {
+  background-color: #132034 !important;
+}
+
+html.dark .bg-slate-100,
+html.dark .bg-gray-100 {
+  background-color: #16253c !important;
+}
+
+html.dark .bg-blue-50 {
+  background-color: rgba(37, 99, 235, 0.16) !important;
+}
+
+html.dark .bg-blue-100 {
+  background-color: rgba(37, 99, 235, 0.25) !important;
+}
+
+html.dark .bg-sky-50 {
+  background-color: rgba(14, 165, 233, 0.16) !important;
+}
+
+html.dark .bg-sky-100 {
+  background-color: rgba(14, 165, 233, 0.25) !important;
+}
+
+html.dark .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.16) !important;
+}
+
+html.dark .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+html.dark .bg-emerald-50,
+html.dark .bg-\[\#f0fdf4\] {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+html.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+html.dark .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.16) !important;
+}
+
+html.dark .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.25) !important;
+}
+
+html.dark .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+}
+
+html.dark .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.25) !important;
+}
+
+/* Gradients in dark mode */
+html.dark .from-\[\#f8fbff\],
+html.dark .from-\[\#edf5ff\],
+html.dark .from-\[\#dfeeff\],
+html.dark .from-\[\#f0f6ff\] {
+  --tw-gradient-from: #121e30 var(--tw-gradient-from-position) !important;
+}
+
+html.dark .via-white,
+html.dark .via-\[\#edf7ff\] {
+  --tw-gradient-via: #142236 var(--tw-gradient-via-position) !important;
+}
+
+html.dark .to-\[\#f0f7ff\],
+html.dark .to-\[\#f0fbff\],
+html.dark .to-\[\#ecfffa\] {
+  --tw-gradient-to: #0f1a2a var(--tw-gradient-to-position) !important;
+}
+
+/* Typography in dark mode - High contrast, perfectly legible */
+html.dark .text-\[\#10233f\],
+html.dark .text-\[\#243750\] {
+  color: #f8fafc !important;
+}
+
+html.dark .text-\[\#334767\],
+html.dark .text-\[\#40516c\],
+html.dark .text-\[\#475774\] {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-\[\#61708a\] {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-\[\#8494ab\],
+html.dark .text-\[\#91a4bd\] {
+  color: #788a9e !important;
+}
+
+html.dark .text-\[\#1458d7\],
+html.dark .text-\[\#1257d6\],
+html.dark .text-\[\#1258d6\] {
+  color: #70a9ff !important;
+}
+
+html.dark .text-slate-900,
+html.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-800,
+html.dark .text-gray-800 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-600,
+html.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-gray-500 {
+  color: #8393a7 !important;
+}
+
+/* Badge text colors in dark mode */
+html.dark .text-blue-700,
+html.dark .text-blue-800 {
+  color: #93c5fd !important;
+}
+
+html.dark .text-sky-700,
+html.dark .text-sky-800 {
+  color: #7dd3fc !important;
+}
+
+html.dark .text-emerald-700,
+html.dark .text-emerald-800 {
+  color: #6ee7b7 !important;
+}
+
+html.dark .text-amber-700,
+html.dark .text-amber-800,
+html.dark .text-amber-900 {
+  color: #fcd34d !important;
+}
+
+html.dark .text-purple-700,
+html.dark .text-purple-800 {
+  color: #d8b4fe !important;
+}
+
+html.dark .text-rose-700,
+html.dark .text-rose-800 {
+  color: #fda4af !important;
+}
+
+/* Borders in dark mode */
+html.dark .border-\[\#e6edf7\],
+html.dark .border-\[\#e2eaf5\],
+html.dark .border-\[\#e4ecf7\],
+html.dark .border-\[\#e4ecf9\],
+html.dark .border-\[\#d6e3f5\],
+html.dark .border-\[\#d8e6fa\],
+html.dark .border-\[\#dbe6f5\] {
+  border-color: #1e304d !important;
+}
+
+html.dark .border-\[\#d6e5fb\],
+html.dark .border-\[\#cde0fd\],
+html.dark .border-\[\#d3e3fa\],
+html.dark .border-\[\#f0f3f8\] {
+  border-color: #253b5e !important;
+}
+
+html.dark .border-slate-200,
+html.dark .border-gray-200 {
+  border-color: #1e304d !important;
+}
+
+html.dark .border-slate-100,
+html.dark .border-gray-100 {
+  border-color: #182840 !important;
+}
+
+html.dark .border-blue-200 {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .border-sky-200 {
+  border-color: rgba(14, 165, 233, 0.3) !important;
+}
+
+html.dark .border-emerald-200,
+html.dark .border-emerald-200\/60 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+html.dark .border-amber-200 {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+html.dark .border-purple-200 {
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+html.dark .divide-\[\#e6edf7\] > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e2f4d !important;
+}
+
+/* Inputs, Textareas, and Dropdowns in dark mode */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #142239 !important;
+  color: #f8fafc !important;
+  border-color: #243a5e !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #3b82f6 !important;
+  outline: none;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Interactive card hover states in dark mode */
+html.dark .hover\:bg-slate-50:hover {
+  background-color: #162640 !important;
+}
+
+html.dark .hover\:bg-\[\#f0f5ff\]:hover {
+  background-color: #192c4b !important;
+}
+
+html.dark .hover\:bg-blue-50:hover {
+  background-color: #162946 !important;
+}
+
+/* Shadows in dark mode */
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-xl,
+html.dark .shadow-2xl {
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4) !important;
+}
+

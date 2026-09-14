@@ -1,0 +1,11 @@
+# Robots.txt for Future Minds - Electronic City, Bengaluru
+# Optimized for Googlebot, Bingbot, and AI Search Crawlers
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$
+
+Crawl-delay: 1
+
+Sitemap: https://futuremindsv2.vercel.app/sitemap.xml

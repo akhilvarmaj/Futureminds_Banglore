@@ -5,14 +5,10 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import { exec } from 'child_process';
 import util from 'util';
-import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 
 const execAsync = util.promisify(exec);
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const PORT = 3000;
 

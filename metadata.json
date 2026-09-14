@@ -1,6 +1,6 @@
 {
-  "name": "Future Minds SEO Optimizer",
-  "description": "Comprehensive SEO optimization suite, keyword ranking blueprint, schema generator, and audit tool for futuremindsv2.vercel.app.",
+  "name": "Future Minds",
+  "description": "#1 Robotics, AI & Coding Classes for School Students (Grades 1–10) in Electronic City & Ananth Nagar, Bangalore.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
