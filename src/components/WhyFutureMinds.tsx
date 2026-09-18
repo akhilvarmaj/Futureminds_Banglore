@@ -72,7 +72,7 @@ export const WhyFutureMinds: React.FC<{ onBookDemo: () => void }> = ({ onBookDem
               <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1769ff] flex items-center justify-center mb-4">
                 <Icon className="w-6 h-6" />
               </div>
-              <h4 className="text-base font-bold text-[#10233f] mb-1.5">{p.title}</h4>
+              <h2 className="text-base font-bold text-[#10233f] mb-1.5">{p.title}</h2>
               <p className="text-xs text-[#61708a] leading-relaxed">{p.desc}</p>
             </div>
           );
@@ -85,9 +85,9 @@ export const WhyFutureMinds: React.FC<{ onBookDemo: () => void }> = ({ onBookDem
           <span className="text-xs font-bold uppercase tracking-wider text-[#1769ff]">
             The Future Minds Difference
           </span>
-          <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
             Why Hands-on Beats Traditional Coaching
-          </h3>
+          </h2>
         </div>
 
         <div className="overflow-x-auto">

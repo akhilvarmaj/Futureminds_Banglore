@@ -206,9 +206,9 @@ export const InteractiveGradeCurriculum: React.FC<{ onSelectGradeDemo: (grade: s
             <Compass className="w-3.5 h-3.5" />
             <span>Interactive Learning Progression (Grades 1–10)</span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
             Curriculum Timeline & Learning Roadmap
-          </h3>
+          </h2>
           <p className="text-xs sm:text-sm text-[#61708a] mt-1 max-w-2xl leading-relaxed">
             Scroll horizontally along the timeline to follow how students progressively evolve from tangible circuit blocks to real Python, IoT telemetry, and computer vision AI.
           </p>
@@ -334,9 +334,9 @@ export const InteractiveGradeCurriculum: React.FC<{ onSelectGradeDemo: (grade: s
                   </div>
 
                   {/* Title & Tagline */}
-                  <h4 className="text-base font-bold text-[#10233f] mb-1.5 line-clamp-1">
+                  <h3 className="text-base font-bold text-[#10233f] mb-1.5 line-clamp-1">
                     {tier.title}
-                  </h4>
+                  </h3>
                   <p className="text-xs text-[#61708a] leading-relaxed mb-4 line-clamp-2">
                     {tier.tagline}
                   </p>
@@ -436,9 +436,9 @@ export const InteractiveGradeCurriculum: React.FC<{ onSelectGradeDemo: (grade: s
                 Roadmap Stage {currentTier.stepNumber}: {currentTier.gradeLabel} ({currentTier.ageRange})
               </span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
               {currentTier.title}
-            </h3>
+            </h2>
             <p className="text-[#61708a] text-sm mt-1 max-w-2xl leading-relaxed">
               {currentTier.tagline}
             </p>
@@ -458,9 +458,9 @@ export const InteractiveGradeCurriculum: React.FC<{ onSelectGradeDemo: (grade: s
           {/* Left Column: Learning Milestones & Core Focus */}
           <div className="lg:col-span-7 space-y-6">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1769ff] mb-3 flex items-center gap-1.5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#1769ff] mb-3 flex items-center gap-1.5">
                 <Award className="w-4 h-4" /> Core Learning Milestones in {currentTier.gradeLabel}
-              </h4>
+              </h3>
               <div className="space-y-3">
                 {currentTier.keyMilestones.map((milestone, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-sm text-[#10233f] bg-[#f8fbff] p-3 rounded-xl border border-[#e8f1fc]">
@@ -511,9 +511,9 @@ export const InteractiveGradeCurriculum: React.FC<{ onSelectGradeDemo: (grade: s
                   </span>
                   <span className="text-4xl">{currentTier.sampleProject.emoji}</span>
                 </div>
-                <h5 className="text-xl font-black text-[#10233f] mb-2">
+                <h4 className="text-xl font-black text-[#10233f] mb-2">
                   {currentTier.sampleProject.title}
-                </h5>
+                </h4>
                 <p className="text-xs sm:text-sm text-[#475774] leading-relaxed mb-6">
                   {currentTier.sampleProject.description}
                 </p>

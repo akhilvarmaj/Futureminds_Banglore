@@ -53,9 +53,9 @@ export const ScheduleAndBatches: React.FC<{ onBookSlot: (slotInfo: string) => vo
             <span className="text-xs font-bold uppercase tracking-wider text-[#1769ff]">
               Batches & Timings
             </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
               Choose a Schedule that Fits Your Child&apos;s Routine
-            </h3>
+            </h2>
             <p className="text-sm text-[#61708a] mt-1">
               All batches are capped at strictly 4–5 students to guarantee individual hardware stations.
             </p>
@@ -74,7 +74,7 @@ export const ScheduleAndBatches: React.FC<{ onBookSlot: (slotInfo: string) => vo
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="w-5 h-5 text-[#1769ff]" />
-              <h4 className="text-lg font-bold text-[#10233f]">Weekend Intensive Batches (Sat & Sun)</h4>
+              <h3 className="text-lg font-bold text-[#10233f]">Weekend Intensive Batches (Sat & Sun)</h3>
             </div>
 
             <div className="space-y-3">
@@ -114,7 +114,7 @@ export const ScheduleAndBatches: React.FC<{ onBookSlot: (slotInfo: string) => vo
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Clock className="w-5 h-5 text-[#19c3d1]" />
-              <h4 className="text-lg font-bold text-[#10233f]">Weekday After-School Batches</h4>
+              <h3 className="text-lg font-bold text-[#10233f]">Weekday After-School Batches</h3>
             </div>
 
             <div className="space-y-3">

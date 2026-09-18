@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { MapPin, Navigation, ExternalLink, Copy, Check, Clock, Phone, Calendar, ShieldCheck, Car } from 'lucide-react';
 import { FUTURE_MINDS_PHONE, getWhatsAppDirectUrl } from '../utils/whatsapp';
+import { BUSINESS } from '../data/siteSeo';
 
 export const CampusLocationMap: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
-  const FULL_ADDRESS = '1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100';
-  const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=1121+5th+Cross+Ananth+Nagar+Phase+1+Phase+II+Electronic+City+Hebbagodi+Karnataka+560100';
-  const EMBED_MAP_SRC = 'https://maps.google.com/maps?q=1121%2C+5th+Cross%2C+Ananth+Nagar%2C+Phase+1%2C+Phase+II%2C+Electronic+City%2C+Hebbagodi%2C+Karnataka+560100&t=&z=16&ie=UTF8&iwloc=&output=embed';
+  const FULL_ADDRESS = BUSINESS.address;
+  const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${BUSINESS.latitude},${BUSINESS.longitude}`;
+  const EMBED_MAP_SRC = `https://maps.google.com/maps?q=${BUSINESS.latitude},${BUSINESS.longitude}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(FULL_ADDRESS);
@@ -28,9 +29,9 @@ export const CampusLocationMap: React.FC = () => {
             <MapPin className="w-3.5 h-3.5" />
             <span>Campus Location & Google Map</span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] tracking-tight">
             Future Minds STEM & Robotics Campus
-          </h3>
+          </h2>
           <p className="text-xs sm:text-sm text-[#61708a] mt-1 max-w-2xl leading-relaxed">
             Visit our physical innovation academy in Ananth Nagar / Electronic City. We welcome parents and students for guided tours and lab demonstrations.
           </p>
@@ -102,7 +103,7 @@ export const CampusLocationMap: React.FC = () => {
               Official Physical Address
             </div>
             <div className="text-base sm:text-lg font-black text-[#10233f] leading-snug mb-3">
-              1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100
+              {FULL_ADDRESS}
             </div>
             
             <p className="text-xs text-[#61708a] leading-relaxed mb-4">
@@ -114,7 +115,7 @@ export const CampusLocationMap: React.FC = () => {
               <div className="flex items-start gap-2.5 text-[#334767]">
                 <Clock className="w-4 h-4 text-[#1769ff] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-[#10233f]">Lab Hours:</span> Monday to Sunday (9:00 AM – 7:30 PM)
+                  <span className="font-bold text-[#10233f]">Lab Hours:</span> {BUSINESS.hours}
                 </div>
               </div>
 

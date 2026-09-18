@@ -35,9 +35,9 @@ export const ParentReviews: React.FC = () => {
         <span className="text-xs font-bold uppercase tracking-wider text-[#1769ff]">
           Parent Experiences
         </span>
-        <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
+        <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] mt-1">
           Loved by Parents in Ananth Nagar & Bengaluru
-        </h3>
+        </h2>
         <p className="text-sm text-[#61708a] mt-1">
           Here is what families notice when learning shifts from rote memorization to hands-on creation.
         </p>

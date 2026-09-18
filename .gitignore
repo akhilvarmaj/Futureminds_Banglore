@@ -1,4 +1,7 @@
 node_modules/
+test-results/
+playwright-report/
+review-artifacts/
 build/
 dist/
 coverage/

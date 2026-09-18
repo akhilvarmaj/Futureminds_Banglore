@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { buildSync } from 'esbuild';
+import { load } from 'cheerio';
 
 function generateSingleHtml() {
   const distDir = path.resolve('dist');
@@ -18,7 +20,7 @@ function generateSingleHtml() {
     const cssPath = path.join(distDir, 'assets', cssFileName);
     if (fs.existsSync(cssPath)) {
       const cssContent = fs.readFileSync(cssPath, 'utf8');
-      html = html.replace(cssMatch[0], `<style>\n${cssContent}\n</style>`);
+      html = html.replace(cssMatch[0], () => `<style>\n${cssContent}\n</style>`);
     }
   }
 
@@ -28,18 +30,23 @@ function generateSingleHtml() {
     const jsFileName = jsMatch[1];
     const jsPath = path.join(distDir, 'assets', jsFileName);
     if (fs.existsSync(jsPath)) {
-      const jsContent = fs.readFileSync(jsPath, 'utf8');
-      html = html.replace(jsMatch[0], `<script type="module">\n${jsContent}\n</script>`);
+      const jsContent = buildSync({ entryPoints: [jsPath], bundle: true, write: false, format: 'iife', minify: true }).outputFiles[0].text;
+      html = html.replace(jsMatch[0], () => `<script type="module">\n${jsContent.replace(/<\/script/gi, '<\\/script')}\n</script>`);
     }
   }
 
-  // Base64 encode logo if available
-  const logoPath = path.resolve('public/future_minds_logo.jpg');
-  if (fs.existsSync(logoPath)) {
-    const logoData = fs.readFileSync(logoPath).toString('base64');
-    const dataUri = `data:image/jpeg;base64,${logoData}`;
-    html = html.replaceAll('/future_minds_logo.jpg', dataUri);
+  const document = load(html);
+  document('meta[name="robots"]').attr('content', 'noindex, follow');
+  for (const [asset, type] of [['future_minds_logo-96.webp', 'image/webp'], ['favicon-48.png', 'image/png'], ['apple-touch-icon.png', 'image/png']]) {
+    const dataUri = `data:${type};base64,${fs.readFileSync(path.resolve('public', asset)).toString('base64')}`;
+    document(`img[src="/${asset}"], link[href="/${asset}"]`).each((_, element) => {
+      document(element).attr(element.tagName === 'img' ? 'src' : 'href', dataUri);
+    });
+    document('script[type="module"]').each((_, element) => {
+      document(element).text(document(element).text().replaceAll(`"/${asset}"`, JSON.stringify(dataUri)));
+    });
   }
+  html = document.html();
 
   // Write single-file html to root, public, and dist
   const outRoot = path.resolve('future_minds_sharable.html');
