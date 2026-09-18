@@ -1,0 +1,6 @@
+{
+  "name": "Future Minds - Kids Coding, AI & Robotics",
+  "description": "Practical technology learning for school students (Grades 1–10). Robotics, AI & Coding with small batches of 4-5 students in Ananth Nagar, Bengaluru.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
