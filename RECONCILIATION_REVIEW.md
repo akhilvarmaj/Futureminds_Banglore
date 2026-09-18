@@ -17,7 +17,7 @@ Date: 2026-09-18. Status: local implementation only, awaiting final approval.
 - Name: Future Minds.
 - Phone / WhatsApp: +91 9618283987.
 - Address: 1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100.
-- Coordinates: latitude 12.8395, longitude 77.6775.
+- Coordinates: latitude 12.835341359891938, longitude 77.69243633284383 (updated by the user after the initial review).
 - Opening hours: Monday-Friday 16:00-20:00; Saturday-Sunday 09:00-19:00.
 - Canonical origin: https://www.futuremindsco.in/.
 

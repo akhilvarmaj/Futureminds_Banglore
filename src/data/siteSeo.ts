@@ -4,8 +4,8 @@ export const BUSINESS = {
   phone: '+919618283987',
   address: '1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100',
   hours: 'Monday-Friday 4:00 PM-8:00 PM; Saturday-Sunday 9:00 AM-7:00 PM',
-  latitude: 12.8395,
-  longitude: 77.6775,
+  latitude: 12.835341359891938,
+  longitude: 77.69243633284383,
 };
 
 export const routes = {

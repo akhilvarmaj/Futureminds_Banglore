@@ -1,10 +1,12 @@
 import fs from 'node:fs/promises';
 import { load } from 'cheerio';
-import { routes, SITE_ORIGIN, structuredData } from '../src/data/siteSeo';
+import { BUSINESS, routes, SITE_ORIGIN, structuredData } from '../src/data/siteSeo';
 
 const html = load(await fs.readFile('index.html', 'utf8'));
 html('meta[name="description"], meta[name="keywords"], meta[name="robots"], meta[name="author"], meta[property^="og:"], meta[name^="twitter:"], link[rel="canonical"], script[type="application/ld+json"]').remove();
 html('title').text(routes.home.title);
+html('meta[name="geo.position"]').attr('content', `${BUSINESS.latitude};${BUSINESS.longitude}`);
+html('meta[name="ICBM"]').attr('content', `${BUSINESS.latitude}, ${BUSINESS.longitude}`);
 const addMeta = (key: string, content: string, property = false) => {
   html('head').append(html('<meta>').attr(property ? 'property' : 'name', key).attr('content', content));
 };
