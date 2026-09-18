@@ -359,9 +359,9 @@ export const InteractiveProjectLab: React.FC<{ onBookDemo: (projectTitle: string
               <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-950/50 text-[#1769ff] dark:text-blue-300 px-3 py-1 rounded-full text-xs font-bold mb-1">
                 <span>🤖 Autonomous Robotics & Algorithmic Thinking</span> • Grades 1–10
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
                 Rover Pathfinding & Code Sequencer Lab
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-[#61708a] dark:text-slate-300 mt-1 max-w-2xl leading-relaxed">
                 Program real hardware steps: Queue move and turn logic blocks, test obstacle collision sensors, collect energy batteries, and reach the destination terminal!
               </p>
@@ -566,9 +566,9 @@ export const InteractiveProjectLab: React.FC<{ onBookDemo: (projectTitle: string
               <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 px-3 py-1 rounded-full text-xs font-bold mb-1">
                 <span>⚡ Digital Electronics & Microcontroller Logic</span> • Grades 4–10
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
                 Interactive Logic Gate & Actuator Breadboard
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-[#61708a] dark:text-slate-300 mt-1 max-w-2xl leading-relaxed">
                 Connect real boolean logic gates (AND, OR, XOR, NAND) to sensors and watch electron currents trigger the robot arm servo motor and safety alarms.
               </p>
@@ -754,9 +754,9 @@ export const InteractiveProjectLab: React.FC<{ onBookDemo: (projectTitle: string
               <div className="inline-flex items-center gap-2 bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-bold mb-1">
                 <span>🧠 Artificial Intelligence & Deep Neural Networks</span> • Grades 6–10
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
                 Train & Test a Convolutional Vision Classifier
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-[#61708a] dark:text-slate-300 mt-1 max-w-2xl leading-relaxed">
                 Students train neural vision models using camera feeds to distinguish autonomous rovers, aerial quadcopters, and industrial robotic arms with live confidence matrices.
               </p>
@@ -901,9 +901,9 @@ export const InteractiveProjectLab: React.FC<{ onBookDemo: (projectTitle: string
               <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold">
                 <span>🌱 IoT & Environmental Sensing</span> • Grades 3–6
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
+              <h2 className="text-2xl sm:text-3xl font-black text-[#10233f] dark:text-white">
                 Smart Soil Hydration & Auto-Watering Pump
-              </h3>
+              </h2>
               <p className="text-xs sm:text-sm text-[#61708a] dark:text-slate-300 leading-relaxed">
                 Kids connect analog soil hygrometer pins to an Arduino microcontroller. When soil dries below 30%, a mini 5V submersible water pump activates automatically to save the plant!
               </p>

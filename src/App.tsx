@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import confetti from 'canvas-confetti';
+import React, { useState, useEffect } from 'react';
 import { 
   Bot, MessageCircle, MapPin, Sparkles, ChevronDown, 
   Menu, X, ArrowRight, CheckCircle2, Phone, Calendar, Send,
   Clock, ShieldCheck, Users, Cpu, Trophy, Star, Award, Layers,
-  ExternalLink, Check, Play, BookOpen, Share2, Lock, Unlock, GitBranch,
+  ExternalLink, Check, Play, BookOpen,
   Sun, Moon
 } from 'lucide-react';
 import { FUTURE_MINDS_PHONE, getWhatsAppDirectUrl, getEnrollmentWhatsAppUrl } from './utils/whatsapp';
@@ -15,26 +14,24 @@ import { WhyFutureMinds } from './components/WhyFutureMinds';
 import { ScheduleAndBatches } from './components/ScheduleAndBatches';
 import { ParentReviews } from './components/ParentReviews';
 import { CampusLocationMap } from './components/CampusLocationMap';
-import { ShareModal } from './components/ShareModal';
-import { GitHubSync } from './components/GitHubSync';
+import { BUSINESS, routes, hashAliases, pageFromPath, updatePageMetadata, type PageTab } from './data/siteSeo';
+import { ServicePage } from './pages/ServicePage';
 
-type PageTab = 'home' | 'about' | 'programs' | 'grades' | 'projects' | 'gallery' | 'demo' | 'contact' | 'faq';
+const gradeOptions = ['Grade 1–2 (Ages 6–7)', 'Grade 3–4 (Ages 8–9)', 'Grade 5–6 (Ages 10–11)', 'Grade 7–8 (Ages 12–13)', 'Grade 9–10 (Ages 14–16)'];
+const slotOptions = ['Weekend: Saturday 10:00 AM', 'Weekend: Saturday 02:00 PM', 'Weekend: Sunday 10:00 AM', 'Weekend: Sunday 02:00 PM', 'Weekday: Tue/Thu 04:45 PM', 'Online 1-on-1 Interactive'];
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState<PageTab>('home');
+export default function App({ initialPage = 'home' }: { initialPage?: PageTab }) {
+  const [activeTab, setActiveTab] = useState<PageTab>(initialPage);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [gitSyncModalOpen, setGitSyncModalOpen] = useState(false);
 
   // Dark Theme State (persists to localStorage, updates document class & theme-color)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  useEffect(() => {
+    try {
       const saved = localStorage.getItem('fm_theme');
-      if (saved) return saved === 'dark';
-      return Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    return false;
-  });
+      setIsDarkMode(saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } catch {}
+  }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode((prev) => {
@@ -67,64 +64,6 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Owner / Admin Mode - Hides the Share button from general visitors unless unlocked
-  const [isOwner, setIsOwner] = useState(false);
-  const [ownerToast, setOwnerToast] = useState<string | null>(null);
-  const logoClicksRef = useRef(0);
-  const lastLogoClickRef = useRef(0);
-
-  // Initialize and check Owner Mode (?admin=true, ?owner=true, or remembered in localStorage)
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const adminVal = params.get('admin') || params.get('owner') || params.get('share');
-      
-      if (adminVal === 'true' || adminVal === '1') {
-        localStorage.setItem('fm_owner_mode', 'true');
-        setIsOwner(true);
-        setOwnerToast('Owner Mode Unlocked: Share button is now active.');
-        const t = setTimeout(() => setOwnerToast(null), 4000);
-        return () => clearTimeout(t);
-      } else if (adminVal === 'false' || adminVal === '0') {
-        localStorage.removeItem('fm_owner_mode');
-        setIsOwner(false);
-      } else {
-        const saved = localStorage.getItem('fm_owner_mode');
-        if (saved === 'true') {
-          setIsOwner(true);
-        }
-      }
-    } catch {
-      // Fallback in restricted iframe environments
-    }
-  }, []);
-
-  const handleLogoClick = () => {
-    const now = Date.now();
-    if (now - lastLogoClickRef.current < 1500) {
-      logoClicksRef.current += 1;
-    } else {
-      logoClicksRef.current = 1;
-    }
-    lastLogoClickRef.current = now;
-
-    // Triple click logo to toggle Owner Mode
-    if (logoClicksRef.current >= 3) {
-      logoClicksRef.current = 0;
-      const nextState = !isOwner;
-      setIsOwner(nextState);
-      if (nextState) {
-        try { localStorage.setItem('fm_owner_mode', 'true'); } catch {}
-        setOwnerToast('Owner Mode Enabled: Share button is now visible.');
-      } else {
-        try { localStorage.removeItem('fm_owner_mode'); } catch {}
-        setOwnerToast('Visitor Mode: Share button is hidden.');
-      }
-      setTimeout(() => setOwnerToast(null), 3500);
-    } else {
-      navigateTo('home');
-    }
-  };
   
   // Free Demo Form state
   const [parentName, setParentName] = useState('');
@@ -138,70 +77,40 @@ export default function App() {
   // FAQ accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Dynamic SEO title & meta description updates based on active section
-  useEffect(() => {
-    const titles: Record<PageTab, string> = {
-      home: 'Future Minds — #1 Robotics, AI & Coding Classes in Electronic City, Bangalore',
-      about: 'Why Future Minds | 4–5 Kids Per Batch STEM Academy in Electronic City',
-      programs: 'Robotics, AI & Coding Programs for Kids | Future Minds Electronic City',
-      grades: 'Grades 1–10 STEM Curriculum | Scratch to Python & Arduino — Future Minds',
-      projects: 'Interactive Project Lab | Autonomous Rovers & AI Vision — Future Minds',
-      gallery: 'Campus & Robotics Lab Gallery | Ananth Nagar Phase 2 — Future Minds',
-      demo: 'Book a Free Demo Class | Hands-on Robotics & Coding — Future Minds Bangalore',
-      contact: 'Contact & Campus Location | 1121 5th Cross Ananth Nagar Electronic City',
-      faq: 'FAQ | Admissions, Batch Timings & Kits — Future Minds Bangalore'
-    };
-    if (titles[activeTab]) {
-      document.title = titles[activeTab];
-    }
-  }, [activeTab]);
+  useEffect(() => updatePageMetadata(activeTab), [activeTab]);
 
-  // Sync with browser hash if provided or clicked (with sitemap & SEO aliases)
   useEffect(() => {
-    const handleHash = () => {
-      const raw = window.location.hash.replace('#', '').toLowerCase();
-      const aliasMap: Record<string, PageTab> = {
-        home: 'home',
-        about: 'about',
-        programs: 'programs',
-        courses: 'programs',
-        classes: 'programs',
-        grades: 'grades',
-        curriculum: 'grades',
-        syllabus: 'grades',
-        projects: 'projects',
-        lab: 'projects',
-        gallery: 'gallery',
-        photos: 'gallery',
-        demo: 'demo',
-        trial: 'demo',
-        enroll: 'demo',
-        book: 'demo',
-        contact: 'contact',
-        location: 'contact',
-        address: 'contact',
-        batches: 'programs',
-        faq: 'faq',
-        faqs: 'faq'
-      };
-      if (aliasMap[raw]) {
-        setActiveTab(aliasMap[raw]);
+    const handleLocation = () => {
+      const legacyPage = hashAliases[window.location.hash.slice(1).toLowerCase()];
+      const page = legacyPage || pageFromPath(window.location.pathname) || initialPage;
+      if (legacyPage && !window.location.pathname.includes('future_minds_sharable')) {
+        window.history.replaceState(null, '', routes[page].path + window.location.search);
       }
+      setActiveTab(page);
+      setMobileMenuOpen(false);
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
-  }, []);
+    handleLocation();
+    window.addEventListener('hashchange', handleLocation);
+    window.addEventListener('popstate', handleLocation);
+    return () => {
+      window.removeEventListener('hashchange', handleLocation);
+      window.removeEventListener('popstate', handleLocation);
+    };
+  }, [initialPage]);
 
   const navigateTo = (tab: PageTab, prefillGradeOrSlot?: string) => {
     setActiveTab(tab);
     setMobileMenuOpen(false);
-    window.location.hash = tab;
+    if (window.location.protocol === 'file:' || window.location.pathname.includes('future_minds_sharable')) {
+      window.location.hash = tab;
+    } else if (window.location.pathname !== routes[tab].path || window.location.hash) {
+      window.history.pushState(null, '', routes[tab].path);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (prefillGradeOrSlot && tab === 'demo') {
       if (prefillGradeOrSlot.startsWith('Grade')) {
-        setChildGrade(prefillGradeOrSlot);
+        setChildGrade(gradeOptions.find(grade => grade.startsWith(prefillGradeOrSlot)) || prefillGradeOrSlot);
       } else if (prefillGradeOrSlot.includes('Slot') || prefillGradeOrSlot.includes('Weekend') || prefillGradeOrSlot.includes('Weekday')) {
         setPreferredSlot(prefillGradeOrSlot);
       } else if (prefillGradeOrSlot.toLowerCase().includes('robot')) {
@@ -224,11 +133,11 @@ export default function App() {
     
     // Fire confetti celebration
     try {
-      confetti({
+      void import('canvas-confetti').then(({ default: confetti }) => confetti({
         particleCount: 90,
         spread: 75,
         origin: { y: 0.6 }
-      });
+      })).catch(() => {});
     } catch {
       // fallback safe
     }
@@ -273,7 +182,7 @@ export default function App() {
     },
     {
       q: 'Where is your physical campus located in Bengaluru?',
-      a: 'Our physical STEM & Robotics Innovation Lab is located at 1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100. It features dedicated test arenas, child-safe hardware workbenches, dual-display programming stations, and reserved parent parking.'
+      a: 'Our physical STEM & Robotics Innovation Lab is located at 1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100. It features dedicated test arenas, child-safe hardware workbenches, dual-display programming stations, and reserved parent parking.'
     },
     {
       q: 'What is included in the Free Demo Session?',
@@ -290,7 +199,13 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f7faff] text-[#10233f] font-sans antialiased selection:bg-[#1769ff] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#f7faff] text-[#10233f] font-sans antialiased selection:bg-[#1769ff] selection:text-white" onClick={event => {
+      if (window.location.protocol !== 'file:' && !window.location.pathname.includes('future_minds_sharable')) return;
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as Element).closest('a[href^="/"]');
+      const page = link && pageFromPath(link.getAttribute('href')!);
+      if (page) { event.preventDefault(); navigateTo(page); }
+    }}>
       {/* Top Notification / Admissions Ribbon */}
       <div className="bg-gradient-to-r from-[#10233f] via-[#123970] to-[#10233f] text-white py-2 px-4 text-xs font-semibold border-b border-slate-800">
         <div className="max-w-[1180px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
@@ -299,7 +214,7 @@ export default function App() {
               Ananth Nagar Campus
             </span>
             <span className="text-slate-200">
-              📍 1121, 5th Cross, Ananth Nagar, Phase II, Electronic City, Hebbagodi • Strictly 4–5 students per batch
+              📍 1121, 5th Cross, Phase II, Ananth Nagar, Electronic City • Strictly 4–5 students per batch
             </span>
           </div>
           <div className="flex items-center gap-3 shrink-0">
@@ -331,13 +246,13 @@ export default function App() {
               <span>+91 {FUTURE_MINDS_PHONE}</span>
             </a>
             <span className="text-slate-600">|</span>
-            <button 
-              onClick={() => navigateTo('demo')} 
+            <a
+              href={routes.demo.path}
               className="text-[#19c3d1] hover:underline font-bold flex items-center gap-1"
             >
               <span>Book Demo Class</span>
               <ArrowRight className="w-3 h-3" />
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -345,14 +260,13 @@ export default function App() {
       {/* Main Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#e6edf7] shadow-sm">
         <div className="max-w-[1180px] mx-auto px-5 py-3.5 flex items-center justify-between gap-6">
-          {/* Brand Logo with Generated Emblem (Triple-tap logo to toggle Owner Mode) */}
-          <button 
-            onClick={handleLogoClick} 
+          <a
+            href={routes.home.path}
             className="flex items-center gap-3 text-left font-black text-xl tracking-tight text-[#10233f] hover:opacity-95 transition group"
-            title="Future Minds Academy (Admin: Tap 3x to toggle Owner Mode)"
+            title="Future Minds Academy"
           >
             <img
-              src="/future_minds_logo.jpg"
+              src="/future_minds_logo-96.webp" width={96} height={96}
               alt="Future Minds Robotics & AI Academy Logo"
               referrerPolicy="no-referrer"
               className="w-11 h-11 rounded-xl object-cover shadow-[0_4px_12px_rgba(23,105,255,0.2)] border border-[#d6e5fb] group-hover:scale-105 transition-transform"
@@ -361,7 +275,7 @@ export default function App() {
               <span className="font-extrabold tracking-tight text-lg sm:text-xl text-[#10233f]">FUTURE MINDS</span>
               <span className="text-[10px] font-bold text-[#1769ff] tracking-wider mt-0.5">ROBOTICS • AI • CODING</span>
             </span>
-          </button>
+          </a>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-[#40516c]">
@@ -375,9 +289,9 @@ export default function App() {
               { id: 'contact', label: 'Contact' },
               { id: 'faq', label: 'FAQ' },
             ].map((tab) => (
-              <button
+              <a
                 key={tab.id}
-                onClick={() => navigateTo(tab.id as PageTab)}
+                href={routes[tab.id as PageTab].path}
                 className={`transition py-1 relative hover:text-[#1769ff] ${
                   activeTab === tab.id ? 'text-[#1769ff]' : ''
                 }`}
@@ -386,34 +300,12 @@ export default function App() {
                 {activeTab === tab.id && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#1769ff] rounded-full" />
                 )}
-              </button>
+              </a>
             ))}
           </nav>
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2.5">
-            {/* Share Interactive Website Button - Visible ONLY to the owner */}
-            {isOwner && (
-              <>
-                <button
-                  onClick={() => setShareModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 bg-[#f0f5ff] hover:bg-[#e4efff] text-[#1769ff] border border-[#d6e5fb] px-3 py-2 rounded-xl font-bold text-xs transition active:scale-95 shadow-sm"
-                  title="Share Interactive Website (Owner Mode)"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Share</span>
-                </button>
-                <button
-                  onClick={() => setGitSyncModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 bg-[#10233f] hover:bg-[#18345c] text-white px-3 py-2 rounded-xl font-bold text-xs transition active:scale-95 shadow-sm"
-                  title="Push to GitHub (Admin Mode)"
-                >
-                  <GitBranch className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="hidden sm:inline">Push to Git</span>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1 rounded font-mono">Sync</span>
-                </button>
-              </>
-            )}
 
             <button
               onClick={() => handleDirectWhatsApp()}
@@ -443,13 +335,13 @@ export default function App() {
               )}
             </button>
 
-            <button
-              onClick={() => navigateTo('demo')}
+            <a
+              href={routes.demo.path}
               className="bg-[#1769ff] hover:bg-[#1258d6] text-white px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-[0_4px_14px_rgba(23,105,255,0.3)] transition flex items-center gap-1.5"
             >
               <Sparkles className="w-4 h-4" />
               <span>Book Free Demo</span>
-            </button>
+            </a>
 
             {/* Mobile Hamburger */}
             <button
@@ -476,32 +368,18 @@ export default function App() {
               { id: 'faq', label: 'FAQ' },
               { id: 'demo', label: '✨ Book Free Demo Class' },
             ].map((item) => (
-              <button
+              <a
                 key={item.id}
-                onClick={() => navigateTo(item.id as PageTab)}
+                href={routes[item.id as PageTab].path}
                 className={`text-left py-3 border-b border-[#f0f3f8] text-sm font-bold flex items-center justify-between ${
                   activeTab === item.id ? 'text-[#1769ff]' : 'text-[#40516c]'
                 }`}
               >
                 <span>{item.label}</span>
                 <ArrowRight className="w-4 h-4 opacity-40" />
-              </button>
+              </a>
             ))}
 
-            {/* Share Interactive Website (Visible only in Owner Mode) */}
-            {isOwner && (
-              <div className="pt-3">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShareModalOpen(true);
-                  }}
-                  className="w-full bg-[#f0f5ff] hover:bg-[#e4efff] text-[#1769ff] border border-[#d6e5fb] py-2.5 rounded-xl font-bold text-xs text-center flex items-center justify-center gap-1.5 transition mb-2.5"
-                >
-                  <Share2 className="w-4 h-4" /> Share Interactive Website (Admin)
-                </button>
-              </div>
-            )}
 
             {/* Mobile Theme Toggle Row */}
             <div className="py-2.5 my-1 border-t border-[#e6edf7] flex items-center justify-between">
@@ -546,6 +424,7 @@ export default function App() {
 
       {/* Main Multi-Page Container */}
       <main className="flex-1">
+        {(activeTab === 'robotics' || activeTab === 'ai' || activeTab === 'coding') && <ServicePage service={activeTab} onBookDemo={interest => navigateTo('demo', interest)} />}
         {/* ======================================================== */}
         {/* PAGE 1: HOME TAB                                         */}
         {/* ======================================================== */}
@@ -567,7 +446,7 @@ export default function App() {
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.02] text-[#10233f]">
                     Think. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1769ff] to-[#19c3d1]">Build.</span> Create.<br />
                     <span className="block text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1769ff] mt-2.5 tracking-normal">
-                      #1 Robotics, AI & Coding Classes in Electronic City
+                      Robotics, AI & Coding Classes in Electronic City
                     </span>
                   </h1>
 
@@ -596,20 +475,20 @@ export default function App() {
                   </div>
 
                   <div className="flex items-center gap-3.5 flex-wrap pt-2">
-                    <button
-                      onClick={() => navigateTo('demo')}
+                    <a
+                      href={routes.demo.path}
                       className="bg-[#1769ff] hover:bg-[#1258d6] text-white px-6 py-4 rounded-[14px] font-extrabold text-sm shadow-[0_8px_25px_rgba(23,105,255,0.3)] transition flex items-center gap-2 hover:scale-[1.02]"
                     >
                       <span>Book a Free Demo</span>
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </a>
 
-                    <button
-                      onClick={() => navigateTo('programs')}
+                    <a
+                      href={routes.programs.path}
                       className="bg-white hover:bg-slate-50 text-[#10233f] border border-[#e6edf7] px-5 py-4 rounded-[14px] font-extrabold text-sm shadow-sm transition"
                     >
                       Explore Programs →
-                    </button>
+                    </a>
                   </div>
                 </div>
 
@@ -667,12 +546,12 @@ export default function App() {
                   <div className="text-xs font-semibold text-[#1769ff] bg-blue-50/70 p-2.5 rounded-xl mb-4">
                     Tools: Arduino, Micro:bit, Breadboards, Servos, Chassis
                   </div>
-                  <button
-                    onClick={() => navigateTo('programs', 'Robotics')}
+                  <a
+                    href={routes.robotics.path}
                     className="text-xs font-bold text-[#1769ff] hover:underline flex items-center gap-1"
                   >
                     View Robotics Syllabus <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
                 </div>
 
                 {/* Pillar 2: AI */}
@@ -687,12 +566,12 @@ export default function App() {
                   <div className="text-xs font-semibold text-[#19c3d1] bg-cyan-50/70 p-2.5 rounded-xl mb-4">
                     Tools: Teachable Machine, OpenCV, Python AI, Edge ML
                   </div>
-                  <button
-                    onClick={() => navigateTo('programs', 'Artificial Intelligence')}
+                  <a
+                    href={routes.ai.path}
                     className="text-xs font-bold text-[#1769ff] hover:underline flex items-center gap-1"
                   >
                     View AI Syllabus <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
                 </div>
 
                 {/* Pillar 3: Coding */}
@@ -707,12 +586,12 @@ export default function App() {
                   <div className="text-xs font-semibold text-purple-700 bg-purple-50/70 p-2.5 rounded-xl mb-4">
                     Tools: Scratch Jr, Python 3, Pygame, Visual Studio Code
                   </div>
-                  <button
-                    onClick={() => navigateTo('programs', 'Coding')}
+                  <a
+                    href={routes.coding.path}
                     className="text-xs font-bold text-[#1769ff] hover:underline flex items-center gap-1"
                   >
                     View Coding Syllabus <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
                 </div>
               </div>
             </section>
@@ -760,12 +639,12 @@ export default function App() {
                 </div>
 
                 <div className="relative z-10 flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                  <button
-                    onClick={() => navigateTo('demo')}
+                  <a
+                    href={routes.demo.path}
                     className="bg-white text-[#1257d6] hover:bg-slate-100 px-6 py-4 rounded-[14px] font-extrabold text-sm shrink-0 shadow-lg transition text-center"
                   >
                     Book Free Demo Class
-                  </button>
+                  </a>
                   <button
                     onClick={() => handleDirectWhatsApp()}
                     className="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-4 rounded-[14px] font-extrabold text-sm shrink-0 shadow-lg transition flex items-center justify-center gap-2"
@@ -789,13 +668,13 @@ export default function App() {
                       Questions Parents Often Ask
                     </h2>
                   </div>
-                  <button
-                    onClick={() => navigateTo('faq')}
+                  <a
+                    href={routes.faq.path}
                     className="text-xs sm:text-sm font-bold text-[#1769ff] hover:underline flex items-center gap-1 self-start sm:self-center"
                   >
                     <span>View all 6 FAQs</span>
                     <ArrowRight className="w-4 h-4" />
-                  </button>
+                  </a>
                 </div>
 
                 <div className="divide-y divide-[#e6edf7] pt-2">
@@ -852,7 +731,7 @@ export default function App() {
                   <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1769ff] flex items-center justify-center font-black text-lg mb-4">
                     01
                   </div>
-                  <h3 className="text-xl font-bold text-[#10233f] mb-2">Active Maker Approach</h3>
+                  <h2 className="text-xl font-bold text-[#10233f] mb-2">Active Maker Approach</h2>
                   <p className="text-sm text-[#61708a] leading-relaxed">
                     Learn the concept → wire the circuit → write the code → test it → embrace bugs → improve it. This keeps learning deeply memorable and confidence-building.
                   </p>
@@ -862,7 +741,7 @@ export default function App() {
                   <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-lg mb-4">
                     02
                   </div>
-                  <h3 className="text-xl font-bold text-[#10233f] mb-2">Micro-Batches (4–5 Kids)</h3>
+                  <h2 className="text-xl font-bold text-[#10233f] mb-2">Micro-Batches (4–5 Kids)</h2>
                   <p className="text-sm text-[#61708a] leading-relaxed">
                     With only 4–5 students per mentor, nobody gets lost in the crowd. Every child has their own physical hardware station and gets immediate help when debugging.
                   </p>
@@ -872,7 +751,7 @@ export default function App() {
                   <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-black text-lg mb-4">
                     03
                   </div>
-                  <h3 className="text-xl font-bold text-[#10233f] mb-2">Structured Grades 1–10</h3>
+                  <h2 className="text-xl font-bold text-[#10233f] mb-2">Structured Grades 1–10</h2>
                   <p className="text-sm text-[#61708a] leading-relaxed">
                     Curriculum is calibrated for every developmental milestone — from early motor circuits for Grade 1 up to neural vision models and IoT telemetry for Grade 10.
                   </p>
@@ -921,7 +800,7 @@ export default function App() {
                         Ages 6–16
                       </span>
                     </div>
-                    <h3 className="text-2xl font-black text-[#10233f] mb-2">Robotics & IoT Track</h3>
+                    <h2 className="text-2xl font-black text-[#10233f] mb-2">Robotics & IoT Track</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed mb-4">
                       From building fundamental DC motor circuits to programming autonomous rovers, smart sensor arrays, and IoT wireless systems.
                     </p>
@@ -954,7 +833,7 @@ export default function App() {
                         Ages 8–16
                       </span>
                     </div>
-                    <h3 className="text-2xl font-black text-[#10233f] mb-2">AI & Machine Learning</h3>
+                    <h2 className="text-2xl font-black text-[#10233f] mb-2">AI & Machine Learning</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed mb-4">
                       Understand how artificial intelligence makes decisions. Train custom image classifiers, gesture detectors, and voice recognition algorithms.
                     </p>
@@ -987,7 +866,7 @@ export default function App() {
                         Ages 6–16
                       </span>
                     </div>
-                    <h3 className="text-2xl font-black text-[#10233f] mb-2">Coding & Python Track</h3>
+                    <h2 className="text-2xl font-black text-[#10233f] mb-2">Coding & Python Track</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed mb-4">
                       Master foundational computational logic, sequence structures, algorithms, real typed Python 3 syntax, and 2D Pygame game design.
                     </p>
@@ -1074,7 +953,7 @@ export default function App() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="bg-white border border-[#e6edf7] rounded-2xl p-6 shadow-sm">
                   <div className="text-4xl mb-3">🚗</div>
-                  <h4 className="text-lg font-bold text-[#10233f] mb-1">Autonomous Obstacle Rover</h4>
+                  <h2 className="text-lg font-bold text-[#10233f] mb-1">Autonomous Obstacle Rover</h2>
                   <p className="text-xs text-[#61708a] leading-relaxed mb-3">
                     Equipped with ultrasonic sensors that measure echo reflections to detect walls and navigate mazes automatically.
                   </p>
@@ -1085,7 +964,7 @@ export default function App() {
 
                 <div className="bg-white border border-[#e6edf7] rounded-2xl p-6 shadow-sm">
                   <div className="text-4xl mb-3">🌱</div>
-                  <h4 className="text-lg font-bold text-[#10233f] mb-1">Smart IoT Greenhouse</h4>
+                  <h2 className="text-lg font-bold text-[#10233f] mb-1">Smart IoT Greenhouse</h2>
                   <p className="text-xs text-[#61708a] leading-relaxed mb-3">
                     Soil moisture probes monitor dryness and command a miniature water pump relay to keep plants watered automatically.
                   </p>
@@ -1096,7 +975,7 @@ export default function App() {
 
                 <div className="bg-white border border-[#e6edf7] rounded-2xl p-6 shadow-sm">
                   <div className="text-4xl mb-3">🦾</div>
-                  <h4 className="text-lg font-bold text-[#10233f] mb-1">Vision-Guided Robotic Arm</h4>
+                  <h2 className="text-lg font-bold text-[#10233f] mb-1">Vision-Guided Robotic Arm</h2>
                   <p className="text-xs text-[#61708a] leading-relaxed mb-3">
                     A webcam detects colored objects on a testing track and commands multi-servo claws to sort items into boxes.
                   </p>
@@ -1137,7 +1016,7 @@ export default function App() {
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#1769ff] bg-blue-50 px-2 py-0.5 rounded-full">
                       Hardware Workstation
                     </span>
-                    <h3 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Electronics & Sensor Benches</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Electronics & Sensor Benches</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed">
                       Equipped with solderless breadboards, individual power regulators, digital multimeters, and component organizers.
                     </p>
@@ -1153,7 +1032,7 @@ export default function App() {
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
                       Robot Testing Arena
                     </span>
-                    <h3 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Racetrack & Obstacle Arena</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Racetrack & Obstacle Arena</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed">
                       Custom flat testing surface with black-line curves, maze wooden boundaries, and ramp bridges for vehicle trials.
                     </p>
@@ -1169,7 +1048,7 @@ export default function App() {
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
                       Coding & AI Pods
                     </span>
-                    <h3 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Dual-Display Code Stations</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mt-2 mb-1">Dual-Display Code Stations</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed">
                       Ergonomic seating with dual monitors so children can see interactive code documentation side-by-side with their projects.
                     </p>
@@ -1180,15 +1059,15 @@ export default function App() {
               {/* Lab Visit Notice */}
               <div className="mt-8 p-6 bg-white border border-[#e6edf7] rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
                 <div>
-                  <h4 className="text-lg font-bold text-[#10233f]">Want to visit our physical lab in Ananth Nagar?</h4>
+                  <h2 className="text-lg font-bold text-[#10233f]">Want to visit our physical lab in Ananth Nagar?</h2>
                   <p className="text-xs text-[#61708a] mt-0.5">Parents are warmly welcomed for a guided tour and interactive walkthrough.</p>
                 </div>
-                <button
-                  onClick={() => navigateTo('demo')}
+                <a
+                  href={routes.demo.path}
                   className="bg-[#1769ff] text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-[#1258d6] transition shrink-0"
                 >
                   Schedule a Lab Tour
-                </button>
+                </a>
               </div>
             </section>
           </div>
@@ -1219,9 +1098,9 @@ export default function App() {
                       🎉
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-[#10233f]">
+                      <h2 className="text-2xl font-black text-[#10233f]">
                         Thank You, {parentName || 'Parent'}!
-                      </h3>
+                      </h2>
                       <p className="text-sm text-[#61708a] max-w-md mx-auto leading-relaxed mt-1">
                         Your complete inquiry for <strong>{childName || 'Student'}</strong> ({childGrade}) has been generated for our Ananth Nagar counseling mentor.
                       </p>
@@ -1345,11 +1224,7 @@ export default function App() {
                           onChange={(e) => setChildGrade(e.target.value)}
                           className="w-full px-4 py-3 border border-[#e6edf7] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1769ff] bg-[#f7faff] font-medium"
                         >
-                          <option>Grade 1–2 (Ages 6–7)</option>
-                          <option>Grade 3–4 (Ages 8–9)</option>
-                          <option>Grade 5–6 (Ages 10–11)</option>
-                          <option>Grade 7–8 (Ages 12–13)</option>
-                          <option>Grade 9–10 (Ages 14–16)</option>
+                          {gradeOptions.map(grade => <option key={grade}>{grade}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1380,12 +1255,8 @@ export default function App() {
                           onChange={(e) => setPreferredSlot(e.target.value)}
                           className="w-full px-4 py-3 border border-[#e6edf7] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1769ff] bg-[#f7faff] font-medium"
                         >
-                          <option>Weekend: Saturday 10:00 AM</option>
-                          <option>Weekend: Saturday 02:00 PM</option>
-                          <option>Weekend: Sunday 10:00 AM</option>
-                          <option>Weekend: Sunday 02:00 PM</option>
-                          <option>Weekday: Tue/Thu 04:45 PM</option>
-                          <option>Online 1-on-1 Interactive</option>
+                          {!slotOptions.includes(preferredSlot) && <option>{preferredSlot}</option>}
+                          {slotOptions.map(slot => <option key={slot}>{slot}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1438,7 +1309,7 @@ export default function App() {
                 Contact & Campus Location
               </h1>
               <p className="text-[#61708a] text-base max-w-[680px] mx-auto leading-relaxed">
-                Located at 1121, 5th Cross, Ananth Nagar, Phase II, Electronic City, Hebbagodi, Bengaluru. We welcome parents to visit, tour our workstations, and consult with academic mentors.
+                Located at {BUSINESS.address}. We welcome parents to visit, tour our workstations, and consult with academic mentors.
               </p>
             </div>
 
@@ -1453,9 +1324,9 @@ export default function App() {
                 <div className="bg-white border border-[#e6edf7] rounded-[22px] p-7 shadow-[0_8px_30px_rgba(26,62,112,0.055)] flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">📍</div>
-                    <h3 className="text-xl font-bold text-[#10233f] mb-2">Campus Location</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mb-2">Campus Location</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed mb-4">
-                      1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100
+                      1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100
                     </p>
                   </div>
                   <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl">
@@ -1467,7 +1338,7 @@ export default function App() {
                 <div className="bg-white border border-[#e6edf7] rounded-[22px] p-7 shadow-[0_8px_30px_rgba(26,62,112,0.055)] flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">📱</div>
-                    <h3 className="text-xl font-bold text-[#10233f] mb-2">Direct WhatsApp & Phone</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mb-2">Direct WhatsApp & Phone</h2>
                     <p className="text-sm font-black text-[#10233f] mb-1">
                       +91 96182 83987
                     </p>
@@ -1495,17 +1366,17 @@ export default function App() {
                 <div className="bg-white border border-[#e6edf7] rounded-[22px] p-7 shadow-[0_8px_30px_rgba(26,62,112,0.055)] flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">🎓</div>
-                    <h3 className="text-xl font-bold text-[#10233f] mb-2">Batch Standards</h3>
+                    <h2 className="text-xl font-bold text-[#10233f] mb-2">Batch Standards</h2>
                     <p className="text-xs text-[#61708a] leading-relaxed mb-4">
                       Small batches strictly capped at 4–5 students per slot. Weekend clubs & weekday after-school options available.
                     </p>
                   </div>
-                  <button
-                    onClick={() => navigateTo('demo')}
+                  <a
+                    href={routes.demo.path}
                     className="w-full bg-[#1769ff] hover:bg-[#1258d6] text-white py-2.5 rounded-xl font-bold text-xs transition shadow-sm"
                   >
                     Reserve Batch Seat
-                  </button>
+                  </a>
                 </div>
               </div>
             </section>
@@ -1558,7 +1429,7 @@ export default function App() {
 
               {/* Still have questions */}
               <div className="mt-8 text-center bg-[#f7faff] border border-[#e6edf7] rounded-2xl p-6">
-                <h4 className="font-bold text-sm text-[#10233f] mb-1">Still have questions for our mentors?</h4>
+                <h2 className="font-bold text-sm text-[#10233f] mb-1">Still have questions for our mentors?</h2>
                 <p className="text-xs text-[#61708a] mb-4">Feel free to chat with our academic team on WhatsApp anytime.</p>
                 <button
                   onClick={() => handleDirectWhatsApp('Hi Future Minds, I have a quick question regarding the programs.')}
@@ -1581,7 +1452,7 @@ export default function App() {
             <div className="lg:col-span-4 space-y-3">
               <div className="flex items-center gap-3 font-black text-xl tracking-tight text-white">
                 <img
-                  src="/future_minds_logo.jpg"
+                  src="/future_minds_logo-96.webp" width={96} height={96}
                   alt="Future Minds Logo"
                   referrerPolicy="no-referrer"
                   className="w-10 h-10 rounded-xl object-cover shadow-md border border-slate-700"
@@ -1597,34 +1468,34 @@ export default function App() {
               <div className="text-xs text-emerald-400 font-semibold flex items-start gap-1.5 pt-1">
                 <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
                 <a
-                  href="https://maps.google.com/?q=1121,+5th+Cross,+Ananth+Nagar,+Electronic+City,+Hebbagodi,+Karnataka+560100"
+                  href={`https://www.google.com/maps/search/?api=1&query=${BUSINESS.latitude},${BUSINESS.longitude}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline text-emerald-300"
                 >
-                  1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100
+                  1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100
                 </a>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="lg:col-span-4 space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Navigation</h4>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Navigation</p>
               <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-slate-300">
-                <button onClick={() => navigateTo('home')} className="text-left hover:text-white transition">Home</button>
-                <button onClick={() => navigateTo('about')} className="text-left hover:text-white transition">About Approach</button>
-                <button onClick={() => navigateTo('programs')} className="text-left hover:text-white transition">All Programs</button>
-                <button onClick={() => navigateTo('grades')} className="text-left hover:text-white transition">Grades 1–10</button>
-                <button onClick={() => navigateTo('projects')} className="text-left hover:text-white transition">Projects Lab</button>
-                <button onClick={() => navigateTo('gallery')} className="text-left hover:text-white transition">Campus Gallery</button>
-                <button onClick={() => navigateTo('contact')} className="text-left hover:text-white transition">Contact Us</button>
-                <button onClick={() => navigateTo('faq')} className="text-left hover:text-white transition">FAQs</button>
+                <a href={routes.home.path} className="text-left hover:text-white transition">Home</a>
+                <a href={routes.about.path} className="text-left hover:text-white transition">About Approach</a>
+                <a href={routes.programs.path} className="text-left hover:text-white transition">All Programs</a>
+                <a href={routes.grades.path} className="text-left hover:text-white transition">Grades 1–10</a>
+                <a href={routes.projects.path} className="text-left hover:text-white transition">Projects Lab</a>
+                <a href={routes.gallery.path} className="text-left hover:text-white transition">Campus Gallery</a>
+                <a href={routes.contact.path} className="text-left hover:text-white transition">Contact Us</a>
+                <a href={routes.faq.path} className="text-left hover:text-white transition">FAQs</a>
               </div>
             </div>
 
             {/* Contact & Demo CTA */}
             <div className="lg:col-span-4 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Ananth Nagar Admissions</h4>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Ananth Nagar Admissions</p>
               <p className="text-xs text-[#91a4bd]">
                 WhatsApp:{' '}
                 <a
@@ -1641,91 +1512,29 @@ export default function App() {
               </p>
 
               <div className="pt-2">
-                <button
-                  onClick={() => navigateTo('demo')}
+                <a
+                  href={routes.demo.path}
                   className="bg-[#1769ff] hover:bg-[#1258d6] text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow-sm flex items-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5" /> Book a Free Demo Session
-                </button>
+                </a>
               </div>
             </div>
           </div>
 
           <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
-              © {new Date().getFullYear()} Future Minds. All rights reserved. 1121, 5th Cross, Ananth Nagar, Phase 1, Phase II, Electronic City, Hebbagodi, Karnataka 560100.
+              © {new Date().getFullYear()} Future Minds. All rights reserved. 1121, 5th Cross, Phase II, Ananth Nagar, Electronic City, Bengaluru, Karnataka 560100.
             </div>
             <div className="flex items-center gap-3">
               <span>Ages 6–16 STEM</span>
               <span>•</span>
               <span>Small 4–5 Batches</span>
-              <span>•</span>
-              <button
-                onClick={() => {
-                  const nextState = !isOwner;
-                  setIsOwner(nextState);
-                  if (nextState) {
-                    try { localStorage.setItem('fm_owner_mode', 'true'); } catch {}
-                    setOwnerToast('Owner Mode Enabled: Share button is now visible.');
-                  } else {
-                    try { localStorage.removeItem('fm_owner_mode'); } catch {}
-                    setOwnerToast('Visitor Mode: Share button is hidden.');
-                  }
-                  setTimeout(() => setOwnerToast(null), 3000);
-                }}
-                className="text-slate-600 hover:text-slate-400 transition flex items-center gap-1.5 cursor-pointer select-none"
-                title={isOwner ? "Owner Mode Active (Click to switch to Visitor view)" : "Admin access (Click or add ?admin=true)"}
-              >
-                {isOwner ? (
-                  <>
-                    <Unlock className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Owner Mode</span>
-                  </>
-                ) : (
-                  <Lock className="w-3 h-3 text-slate-700 hover:text-slate-500" />
-                )}
-              </button>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Owner Mode Notification Toast */}
-      {ownerToast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#10233f] text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-2xl border border-slate-700 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>{ownerToast}</span>
-        </div>
-      )}
-
-      {/* Interactive Website Share Modal */}
-      <ShareModal 
-        isOpen={shareModalOpen} 
-        onClose={() => setShareModalOpen(false)} 
-      />
-
-      {/* Owner Mode: GitHub Sync Modal */}
-      {gitSyncModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
-            <div className="sticky top-0 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-200 flex items-center justify-between z-10">
-              <div className="flex items-center gap-2 font-bold text-[#10233f]">
-                <GitBranch className="w-5 h-5 text-[#1769ff]" />
-                <span>GitHub Auto-Sync & Deployment Hub</span>
-              </div>
-              <button
-                onClick={() => setGitSyncModalOpen(false)}
-                className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6">
-              <GitHubSync />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

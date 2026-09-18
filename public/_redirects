@@ -1,1 +1,1 @@
-/*    /index.html   200
+# Static route directories provide their own index.html; unknown paths stay 404.

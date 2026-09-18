@@ -1,5 +1,26 @@
 {
-  "cleanUrls": true,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "futuremindsco.in" }],
+      "destination": "https://www.futuremindsco.in/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "futuremindsv2.vercel.app" }],
+      "destination": "https://www.futuremindsco.in/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/future_minds_sharable",
+      "destination": "/future_minds_sharable.html",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/robots.txt",
@@ -26,12 +47,6 @@
           "value": "public, max-age=86400, must-revalidate"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!assets/|future_minds_logo.jpg|robots.txt|sitemap.xml|future_minds_sharable.html).*)",
-      "destination": "/index.html"
     }
   ]
 }

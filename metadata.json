@@ -1,6 +1,8 @@
 {
   "name": "Future Minds",
-  "description": "#1 Robotics, AI & Coding Classes for School Students (Grades 1–10) in Electronic City & Ananth Nagar, Bangalore.",
+  "description": "Robotics, AI and coding classes for kids in Grades 1-10 at Future Minds, Ananth Nagar, Electronic City, Bengaluru. Book a free demo.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

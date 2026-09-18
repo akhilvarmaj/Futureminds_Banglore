@@ -1,10 +1,15 @@
 import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
+import {createRoot, hydrateRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { pageFromPath, type PageTab } from './data/siteSeo';
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')!;
+const initialPage = (root.dataset.page as PageTab) || pageFromPath(window.location.pathname) || 'home';
+const application = (
   <StrictMode>
-    <App />
-  </StrictMode>,
+    <App initialPage={initialPage} />
+  </StrictMode>
 );
+if (root.hasChildNodes()) hydrateRoot(root, application);
+else createRoot(root).render(application);
