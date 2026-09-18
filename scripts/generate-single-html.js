@@ -18,7 +18,7 @@ function generateSingleHtml() {
     const cssPath = path.join(distDir, 'assets', cssFileName);
     if (fs.existsSync(cssPath)) {
       const cssContent = fs.readFileSync(cssPath, 'utf8');
-      html = html.replace(cssMatch[0], `<style>\n${cssContent}\n</style>`);
+      html = html.replace(cssMatch[0], () => `<style>\n${cssContent}\n</style>`);
     }
   }
 
@@ -29,7 +29,7 @@ function generateSingleHtml() {
     const jsPath = path.join(distDir, 'assets', jsFileName);
     if (fs.existsSync(jsPath)) {
       const jsContent = fs.readFileSync(jsPath, 'utf8');
-      html = html.replace(jsMatch[0], `<script type="module">\n${jsContent}\n</script>`);
+      html = html.replace(jsMatch[0], () => `<script type="module">\n${jsContent.replace(/<\/script/gi, '<\\/script')}\n</script>`);
     }
   }
 

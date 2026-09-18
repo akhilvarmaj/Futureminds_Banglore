@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   Bot, MessageCircle, MapPin, Sparkles, ChevronDown, 
   Menu, X, ArrowRight, CheckCircle2, Phone, Calendar, Send,
   Clock, ShieldCheck, Users, Cpu, Trophy, Star, Award, Layers,
-  ExternalLink, Check, Play, BookOpen, Share2, Lock, Unlock
+  ExternalLink, Check, Play, BookOpen
 } from 'lucide-react';
 import { FUTURE_MINDS_PHONE, getWhatsAppDirectUrl, getEnrollmentWhatsAppUrl } from './utils/whatsapp';
 import { InteractiveHeroRobot } from './components/InteractiveHeroRobot';
@@ -14,73 +14,12 @@ import { WhyFutureMinds } from './components/WhyFutureMinds';
 import { ScheduleAndBatches } from './components/ScheduleAndBatches';
 import { ParentReviews } from './components/ParentReviews';
 import { CampusLocationMap } from './components/CampusLocationMap';
-import { ShareModal } from './components/ShareModal';
 
 type PageTab = 'home' | 'about' | 'programs' | 'grades' | 'projects' | 'gallery' | 'demo' | 'contact' | 'faq';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<PageTab>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-
-  // Owner / Admin Mode - Hides the Share button from general visitors unless unlocked
-  const [isOwner, setIsOwner] = useState(false);
-  const [ownerToast, setOwnerToast] = useState<string | null>(null);
-  const logoClicksRef = useRef(0);
-  const lastLogoClickRef = useRef(0);
-
-  // Initialize and check Owner Mode (?admin=true, ?owner=true, or remembered in localStorage)
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const adminVal = params.get('admin') || params.get('owner') || params.get('share');
-      
-      if (adminVal === 'true' || adminVal === '1') {
-        localStorage.setItem('fm_owner_mode', 'true');
-        setIsOwner(true);
-        setOwnerToast('Owner Mode Unlocked: Share button is now active.');
-        const t = setTimeout(() => setOwnerToast(null), 4000);
-        return () => clearTimeout(t);
-      } else if (adminVal === 'false' || adminVal === '0') {
-        localStorage.removeItem('fm_owner_mode');
-        setIsOwner(false);
-      } else {
-        const saved = localStorage.getItem('fm_owner_mode');
-        if (saved === 'true') {
-          setIsOwner(true);
-        }
-      }
-    } catch {
-      // Fallback in restricted iframe environments
-    }
-  }, []);
-
-  const handleLogoClick = () => {
-    const now = Date.now();
-    if (now - lastLogoClickRef.current < 1500) {
-      logoClicksRef.current += 1;
-    } else {
-      logoClicksRef.current = 1;
-    }
-    lastLogoClickRef.current = now;
-
-    // Triple click logo to toggle Owner Mode
-    if (logoClicksRef.current >= 3) {
-      logoClicksRef.current = 0;
-      const nextState = !isOwner;
-      setIsOwner(nextState);
-      if (nextState) {
-        try { localStorage.setItem('fm_owner_mode', 'true'); } catch {}
-        setOwnerToast('Owner Mode Enabled: Share button is now visible.');
-      } else {
-        try { localStorage.removeItem('fm_owner_mode'); } catch {}
-        setOwnerToast('Visitor Mode: Share button is hidden.');
-      }
-      setTimeout(() => setOwnerToast(null), 3500);
-    } else {
-      navigateTo('home');
-    }
-  };
   
   // Free Demo Form state
   const [parentName, setParentName] = useState('');
@@ -240,11 +179,10 @@ export default function App() {
       {/* Main Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#e6edf7] shadow-sm">
         <div className="max-w-[1180px] mx-auto px-5 py-3.5 flex items-center justify-between gap-6">
-          {/* Brand Logo with Generated Emblem (Triple-tap logo to toggle Owner Mode) */}
           <button 
-            onClick={handleLogoClick} 
+            onClick={() => navigateTo('home')}
             className="flex items-center gap-3 text-left font-black text-xl tracking-tight text-[#10233f] hover:opacity-95 transition group"
-            title="Future Minds Academy (Admin: Tap 3x to toggle Owner Mode)"
+            title="Future Minds Academy"
           >
             <img
               src="/future_minds_logo.jpg"
@@ -287,18 +225,6 @@ export default function App() {
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2.5">
-            {/* Share Interactive Website Button - Visible ONLY to the owner */}
-            {isOwner && (
-              <button
-                onClick={() => setShareModalOpen(true)}
-                className="inline-flex items-center gap-1.5 bg-[#f0f5ff] hover:bg-[#e4efff] text-[#1769ff] border border-[#d6e5fb] px-3 py-2 rounded-xl font-bold text-xs transition active:scale-95 shadow-sm"
-                title="Share Interactive Website (Owner Mode)"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Share</span>
-                <span className="text-[10px] bg-blue-100 text-[#1769ff] px-1 rounded font-mono hidden md:inline">Admin</span>
-              </button>
-            )}
 
             <button
               onClick={() => handleDirectWhatsApp()}
@@ -353,20 +279,6 @@ export default function App() {
               </button>
             ))}
 
-            {/* Share Interactive Website (Visible only in Owner Mode) */}
-            {isOwner && (
-              <div className="pt-3">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShareModalOpen(true);
-                  }}
-                  className="w-full bg-[#f0f5ff] hover:bg-[#e4efff] text-[#1769ff] border border-[#d6e5fb] py-2.5 rounded-xl font-bold text-xs text-center flex items-center justify-center gap-1.5 transition mb-2.5"
-                >
-                  <Share2 className="w-4 h-4" /> Share Interactive Website (Admin)
-                </button>
-              </div>
-            )}
 
             <div className="pb-2 flex gap-3">
               <a
@@ -1460,50 +1372,11 @@ export default function App() {
               <span>Ages 6–16 STEM</span>
               <span>•</span>
               <span>Small 4–5 Batches</span>
-              <span>•</span>
-              <button
-                onClick={() => {
-                  const nextState = !isOwner;
-                  setIsOwner(nextState);
-                  if (nextState) {
-                    try { localStorage.setItem('fm_owner_mode', 'true'); } catch {}
-                    setOwnerToast('Owner Mode Enabled: Share button is now visible.');
-                  } else {
-                    try { localStorage.removeItem('fm_owner_mode'); } catch {}
-                    setOwnerToast('Visitor Mode: Share button is hidden.');
-                  }
-                  setTimeout(() => setOwnerToast(null), 3000);
-                }}
-                className="text-slate-600 hover:text-slate-400 transition flex items-center gap-1.5 cursor-pointer select-none"
-                title={isOwner ? "Owner Mode Active (Click to switch to Visitor view)" : "Admin access (Click or add ?admin=true)"}
-              >
-                {isOwner ? (
-                  <>
-                    <Unlock className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Owner Mode</span>
-                  </>
-                ) : (
-                  <Lock className="w-3 h-3 text-slate-700 hover:text-slate-500" />
-                )}
-              </button>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Owner Mode Notification Toast */}
-      {ownerToast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#10233f] text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-2xl border border-slate-700 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>{ownerToast}</span>
-        </div>
-      )}
-
-      {/* Interactive Website Share Modal */}
-      <ShareModal 
-        isOpen={shareModalOpen} 
-        onClose={() => setShareModalOpen(false)} 
-      />
     </div>
   );
 }
